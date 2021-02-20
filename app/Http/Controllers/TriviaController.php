@@ -8,19 +8,19 @@ class TriviaController extends Controller
 {
     public function index()
     {
-        try {
+       // try {
             $question = $this->getQuestion();
             $correctAnswer = $this->getCorrectAnswer($question);
-            $wrongAnswers = $this->getWrongAnswers($correctAnswer);
-        } catch (\Exception $e) {
-            return view('error');
-        }
+            $answers = $this->getAnswers($correctAnswer);
+            $this->formatQuestion($question);
+//        } catch (\Exception $e) {
+//            return view('error');
+//        }
         Log::debug($correctAnswer);
-        $this->formatQuestion($question);
+
         return view("question",
             [
-                'wrongAnswers' => $wrongAnswers,
-                'correctAnswer' => $correctAnswer,
+                'answers' => $answers,
                 'question' => $question
             ]);
     }
@@ -36,7 +36,7 @@ class TriviaController extends Controller
     {
         $quizQuestion = file_get_contents('http://numbersapi.com/random');
         $answer = $this->getCorrectAnswer($quizQuestion);
-        if (is_numeric($answer)) {
+        if ($answer > 0 && $answer < 1000000) {
             return $quizQuestion;
         } else {
             return $this->getQuestion();
@@ -45,19 +45,21 @@ class TriviaController extends Controller
 
     private function getCorrectAnswer(string $question): int
     {
-        return (int) explode(' ', $question)[0];
+        return intval(explode(' ', $question)[0]);
     }
 
-    private function getWrongAnswers(int $correctAnswer): array
+    private function getAnswers(int $correctAnswer): array
     {
-        $wrongAnswers = [];
-        while (count($wrongAnswers) < 3) {
+        $answers = [];
+        while (count($answers) < 3) {
             $max = $correctAnswer * 2;
             $randomNumber = rand(0, $max);
-            if (!in_array($randomNumber, $wrongAnswers) && $randomNumber !== $correctAnswer) {
-                $wrongAnswers[] = $randomNumber;
+            if (!in_array($randomNumber, $answers) && $randomNumber !== $correctAnswer) {
+                $answers[] = $randomNumber;
             }
         }
-        return $wrongAnswers;
+        $answers[] = $correctAnswer;
+        shuffle($answers);
+        return $answers;
     }
 }
