@@ -16,6 +16,7 @@ class TriviaController extends Controller
 //        } catch (\Exception $e) {
 //            return view('error');
 //        }
+        session(['correctAnswer' => $correctAnswer]);
         Log::debug($correctAnswer);
 
         return view("question",
