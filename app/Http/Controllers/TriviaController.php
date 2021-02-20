@@ -2,21 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class TriviaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-       // try {
+        if ($request->session()->has('question') && $request->session()->has('answers')) {
+            $question = $request->session()->get('question');
+            $answers = $request->session()->get('answers');
+            $correctAnswer = $request->session()->get('correctAnswer');
+        } else {
             $question = $this->getQuestion();
             $correctAnswer = $this->getCorrectAnswer($question);
             $answers = $this->getAnswers($correctAnswer);
             $this->formatQuestion($question);
-//        } catch (\Exception $e) {
-//            return view('error');
-//        }
-        session(['correctAnswer' => $correctAnswer]);
+        }
+
+        $questionCount = intval($request->session()->get('questionCount'));
+        Log::debug($questionCount);
+        session([
+            'correctAnswer' => $correctAnswer,
+            'question' => $question,
+            'answers' => $answers
+        ]);
         Log::debug($correctAnswer);
 
         return view("question",

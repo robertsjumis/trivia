@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class AnswerController extends Controller
 {
@@ -11,9 +10,19 @@ class AnswerController extends Controller
     {
         $answer = $request->input('answer');
         $correctAnswer = $request->session()->get('correctAnswer');
-        if ($answer == $correctAnswer) {
+        $questionCount = intval($request->session()->get('questionCount'));
+
+        if ($answer == $correctAnswer && $questionCount < 19) {
+            session([
+                'questionCount' => $questionCount + 1
+            ]);
             return redirect ('/trivia');
         }
-        return redirect('/');
+        if ($answer == $correctAnswer) {
+            session([
+                'questionCount' => $questionCount + 1
+            ]);
+        }
+        return redirect('/results');
     }
 }
