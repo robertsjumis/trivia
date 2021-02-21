@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class TriviaController extends Controller
 {
@@ -21,16 +20,12 @@ class TriviaController extends Controller
             $this->formatQuestion($question);
         }
 
-        $questionCount = intval($request->session()->get('questionCount'));
-        Log::debug($questionCount);
-
         session([
             'correctAnswer' => $correctAnswer,
             'question' => $question,
             'answers' => $answers,
             'allQuestions' => $allQuestions
         ]);
-        Log::debug($correctAnswer);
 
         return view("question",
             [
@@ -42,8 +37,8 @@ class TriviaController extends Controller
     private function formatQuestion(string &$question): void
     {
         $question = substr(strstr($question," "), 1);
-        $question = str_replace(".", "?", $question);
-        $question = 'What ' . $question;
+        $question = substr($question, 0, -1);
+        $question = 'What ' . $question . '?';
     }
 
     private function getQuestion(array &$allQuestions): string
