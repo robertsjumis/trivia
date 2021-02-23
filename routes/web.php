@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\AnswerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\TriviaController;
 use App\Http\Controllers\ResultController;
+use App\Http\Middleware\HasTriviaEnded;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,5 +19,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index']);
 Route::get('/trivia', [TriviaController::class, 'index']);
-Route::get('/results', [ResultController::class, 'index']);
-Route::post('/trivia', [AnswerController::class, 'save']);
+Route::post('/trivia', [TriviaController::class, 'save']);
+Route::get('/results', [ResultController::class, 'index'])->middleware(HasTriviaEnded::class);

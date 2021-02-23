@@ -2,7 +2,7 @@
     Trivia has ended!
 </p>
 <p>
-    You successfully answered {{$questionCount}}/20 questions!
+    You successfully answered {{$questionCount}}/{{$maxQuestions}} questions!
 </p>
 @if ($correctAnswer)
     <p>
