@@ -12,26 +12,53 @@ class TriviaController extends Controller
         if ($request->session()->has('question') && $request->session()->has('answers')) {
             $question = $request->session()->get('question');
             $answers = $request->session()->get('answers');
-            $correctAnswer = $request->session()->get('correctAnswer');
         } else {
             $question = $this->getQuestion($allQuestions);
             $correctAnswer = $this->getCorrectAnswer($question);
             $answers = $this->getAnswers($correctAnswer);
             $this->formatQuestion($question);
+            session([
+                'correctAnswer' => $correctAnswer,
+                'question' => $question,
+                'answers' => $answers,
+                'allQuestions' => $allQuestions
+            ]);
         }
-
-        session([
-            'correctAnswer' => $correctAnswer,
-            'question' => $question,
-            'answers' => $answers,
-            'allQuestions' => $allQuestions
-        ]);
-
         return view("question",
             [
                 'answers' => $answers,
                 'question' => $question
             ]);
+    }
+
+    public function save(Request $request)
+    {
+        $answer = $request->input('answer');
+        if (!$answer) {
+            return $this->index($request);
+        }
+        $correctAnswer = $request->session()->get('correctAnswer');
+        $questionCount = intval($request->session()->get('questionCount'));
+        session([
+            'question' => null,
+            'answer' => null
+        ]);
+        $maxQuestions = config('trivia.maxQuestions');
+
+        if ($answer == $correctAnswer) {
+            $questionCount += 1;
+            session([
+                'answeredCorrectly' => true,
+                'questionCount' => $questionCount
+            ]);
+            return $questionCount < $maxQuestions ?
+                $this->index($request) : redirect('/results');
+        } else {
+            session([
+                'answeredCorrectly' => false
+            ]);
+            return redirect('/results');
+        }
     }
 
     private function formatQuestion(string &$question): void
